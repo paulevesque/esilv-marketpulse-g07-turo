@@ -12,6 +12,7 @@
 |---|---|
 | Alexandre Moussou | @AlexandreMoussou |
 | Paul Evesque | @paulevesque |
+| Amary Diarra | @Amd19z |
 
 Each other team member adds their own row.
 
