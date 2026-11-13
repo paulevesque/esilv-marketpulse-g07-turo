@@ -8,6 +8,7 @@ DATA_DIR = Path("data/sample")
 # These starter values mirror config/settings.yml.
 # settings.yml is a human-readable configuration contract in the CORE.
 # Parsing YAML is optional and is not required by the 18-hour lab sequence.
+PROVIDER_LABEL = "CSV (local sample data)"
 LOOKBACK_LABEL = "1 month"
 INTERVAL_LABEL = "Daily"
 
@@ -71,6 +72,7 @@ def main():
     print()
     display_market_summary("Benchmark", benchmark, benchmark_prices)
     print()
+    print(f"Provider: {PROVIDER_LABEL}")
     print(f"Period: {LOOKBACK_LABEL}")
     print(f"Interval: {INTERVAL_LABEL}")
 
