@@ -186,6 +186,63 @@ calculate once
 present many times
 ```
 
+## How to run
+
+### Prerequisites
+
+- Python 3 (check with `python --version` or `python3 --version`);
+- Git;
+- access to the team repository.
+
+At the current stage (TD01-TD06), MarketPulse uses only the Python standard library: there is nothing to install with `pip`.
+
+### Steps
+
+1. Clone the team repository and enter it:
+
+```bash
+git clone git@github.com:<team-owner>/esilv-marketpulse-gXX-tYY.git
+cd esilv-marketpulse-gXX-tYY
+```
+
+2. Run MarketPulse **from the repository root**:
+
+```bash
+python src/main.py
+```
+
+On macOS or Linux, if `python` is not found, use `python3 src/main.py`.
+
+### Expected output
+
+The terminal shows one summary for the instrument and one for the benchmark, then the provider, period and interval:
+
+```text
+=== MarketPulse ===
+
+Instrument
+AAPL - Apple Inc.
+Market       : NASDAQ | Currency: USD
+Observations : 21
+...
+
+Benchmark
+SP500 - S&P 500
+...
+
+Provider: CSV (local sample data)
+Period: 1 month
+Interval: Daily
+```
+
+### Common problems
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `FileNotFoundError: ... 'data/sample/instruments.json'` | The command was run from another folder, for example `src/`. Data paths are relative to the repository root. | `cd` back to the repository root, then run `python src/main.py`. |
+| `command not found: python` | Only `python3` is installed. | Use `python3 src/main.py`. |
+| `can't open file '.../src/main.py'` | The current folder is not the repository. | Run `pwd`, then `cd` into the cloned repository. |
+
 ## Canonical runtime
 
 Terminal:
