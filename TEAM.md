@@ -10,7 +10,7 @@
 
 | Full name | GitHub username |
 |---|---|
-| Alexandre Moussou | @Moussmouss92I |
+| Alexandre Moussou | @AlexandreMoussou |
 
 Each other team member adds their own row.
 
