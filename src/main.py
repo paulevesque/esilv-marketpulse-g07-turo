@@ -26,14 +26,6 @@ def filter_prices(prices, ticker):
     return [row for row in prices if row["ticker"] == ticker]
 
 
-def get_first_close(prices):
-    return float(prices[0]["close"])
-
-
-def get_last_close(prices):
-    return float(prices[-1]["close"])
-
-
 def get_first_date(prices):
     return prices[0]["date"]
 
@@ -42,9 +34,15 @@ def get_last_date(prices):
     return prices[-1]["date"]
 
 
-def display_market_summary(label, asset, prices, show_currency=True):
-    unit = f" {asset['currency']}" if show_currency else ""
+def get_first_close(prices):
+    return float(prices[0]["close"])
 
+
+def get_last_close(prices):
+    return float(prices[-1]["close"])
+
+
+def display_market_summary(label, asset, prices, unit=""):
     print(label)
     print(f"{asset['ticker']} - {asset['name']}")
     print(f"Market       : {asset['market']} | Currency: {asset['currency']}")
@@ -67,9 +65,11 @@ def main():
 
     print("=== MarketPulse ===")
     print()
-    display_market_summary("Instrument", instrument, instrument_prices)
+    display_market_summary(
+        "Instrument", instrument, instrument_prices, f" {instrument['currency']}"
+    )
     print()
-    display_market_summary("Benchmark", benchmark, benchmark_prices, show_currency=False)
+    display_market_summary("Benchmark", benchmark, benchmark_prices)
     print()
     print(f"Period: {LOOKBACK_LABEL}")
     print(f"Interval: {INTERVAL_LABEL}")
