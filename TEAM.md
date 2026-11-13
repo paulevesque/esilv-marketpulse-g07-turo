@@ -11,6 +11,7 @@
 | Full name | GitHub username |
 |---|---|
 | Alexandre Moussou | @AlexandreMoussou |
+| Paul Evesque | @paulevesque |
 
 Each other team member adds their own row.
 
