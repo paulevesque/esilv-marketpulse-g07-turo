@@ -13,8 +13,14 @@
 | `03_yahoo_market_data.png` | Successful remote retrieval through `yfinance`: 23 canonical rows for AAPL and 23 for SP500 (Yahoo symbol `^GSPC`), first and last row of each |
 | `04_instrument_benchmark.png` | `python src/main.py` with the Yahoo provider: AAPL vs SP500, 1 month, Daily, period returns, relative performance and base 100 |
 
-## What I did (TD07-TD08)
+## What I did (TD05-TD08)
 
+- TD05: Pull Request #4 `docs: add How to run section to README` (branch
+  `docs/improve-how-to-run`) and Pull Request #5 `docs: add Checkpoint A evidence and TEAM.md row
+  for Amd19z`, both reviewed by AlexandreMoussou before merge.
+- TD06: review comment on Pull Request #2 `feat: display data provider label`. I checked out the
+  branch, ran `python3 src/main.py`, checked the label against `config/settings.yml` and noted that
+  the hard-coded label would have to change with the Yahoo provider in TD08.
 - TD07: Pull Request #6 adds `src/analytics.py` (`index_by_date`, `align_series`,
   `calculate_period_return`, `calculate_base_100`, `calculate_relative_performance`) and
   updates `src/main.py` to normalize CSV rows (`float` / `int`) and reuse the analytics.
