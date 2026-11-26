@@ -136,6 +136,41 @@ Check done for this document: applying the field mapping above to the 42 observa
 | AAPL | AAPL | AAPL | AAPL US Equity |
 | SP500 | SP500 | ^GSPC | SPX Index |
 
+## Provider boundary
+
+Where the Bloomberg-specific names stop, using the benchmark as the example:
+
+```text
+data/sample/bloomberg_reference_sample.json
+  series: provider_identifier = "SPX Index"
+          canonical_ticker    = "SP500"
+          observations: observation_date, open_value, ..., volume_value
+        |
+        v
+TD10  src/providers/bloomberg_provider.py
+  - selects the series by provider_identifier "SPX Index"
+  - renames observation_date -> date, open_value -> open, ..., volume_value -> volume
+  - casts prices to float and volume to int
+  - writes canonical_ticker "SP500" into ticker
+        |
+        |   <-- provider boundary: "SPX Index" and the *_value keys
+        |       do not cross this line
+        v
+canonical rows
+  {"date": "2026-09-01", "ticker": "SP500", "open": 6592.0, ..., "volume": 0}
+        |
+        v
+src/main.py         align_series() on common dates
+        |
+        v
+src/analytics.py    period return, base 100, relative performance
+                    (only AAPL / SP500 rows, no provider identifier)
+```
+
+The Yahoo stage follows the same path: `^GSPC` exists only in `src/providers/yahoo_provider.py` (`YAHOO_SYMBOLS` and `get_yahoo_symbol()`), and the rows it returns already carry `SP500`. TD10 should give Bloomberg the same shape, so that `src/main.py` only chooses a provider and `src/analytics.py` stays unchanged.
+
+Checked on the current `main`: no Bloomberg identifier (`US Equity`, `SPX`) appears anywhere under `src/`.
+
 ## TD10 handoff
 
 - Access mode: APPROVED_SAMPLE. Live connectivity not demonstrated.
