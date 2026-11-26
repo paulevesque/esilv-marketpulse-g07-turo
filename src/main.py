@@ -1,6 +1,7 @@
 from pathlib import Path
 import csv
 import json
+import sys
 
 from analytics import (
     align_series,
@@ -15,7 +16,14 @@ DATA_DIR = Path("data/sample")
 # These starter values mirror config/settings.yml.
 # settings.yml is a human-readable configuration contract in the CORE.
 # Parsing YAML is optional and is not required by the 18-hour lab sequence.
-PROVIDER_LABEL = "CSV (local sample data)"
+PROVIDER = "yahoo"
+LOOKBACK = "1mo"
+INTERVAL = "1d"
+
+PROVIDER_LABELS = {
+    "csv": "CSV (local sample data)",
+    "yahoo": "Yahoo Finance via yfinance",
+}
 LOOKBACK_LABEL = "1 month"
 INTERVAL_LABEL = "Daily"
 
@@ -46,6 +54,36 @@ def filter_prices(prices, ticker):
     return [row for row in prices if row["ticker"] == ticker]
 
 
+def load_csv_prices(instrument, benchmark):
+    prices = [normalize_price_row(row) for row in load_prices()]
+
+    return (
+        filter_prices(prices, instrument["ticker"]),
+        filter_prices(prices, benchmark["ticker"]),
+    )
+
+
+def load_yahoo_prices(instrument, benchmark):
+    # Imported here so the local CSV path keeps working without yfinance.
+    from providers.yahoo_provider import YAHOO_SYMBOLS, fetch_yahoo_prices
+
+    return tuple(
+        fetch_yahoo_prices(
+            symbol=YAHOO_SYMBOLS[asset["ticker"]],
+            canonical_ticker=asset["ticker"],
+            period=LOOKBACK,
+            interval=INTERVAL,
+        )
+        for asset in (instrument, benchmark)
+    )
+
+
+PRICE_LOADERS = {
+    "csv": load_csv_prices,
+    "yahoo": load_yahoo_prices,
+}
+
+
 def display_asset_summary(label, asset, period_return):
     print(label)
     print(f"{asset['ticker']} - {asset['name']}")
@@ -53,14 +91,24 @@ def display_asset_summary(label, asset, period_return):
 
 
 def main():
+    # Optional: "python src/main.py csv" runs on the local sample data.
+    provider = sys.argv[1] if len(sys.argv) > 1 else PROVIDER
+
+    if provider not in PRICE_LOADERS:
+        sys.exit(f"Unknown provider: {provider} (use csv or yahoo)")
+
     instruments = load_instruments()
-    prices = [normalize_price_row(row) for row in load_prices()]
 
     instrument = instruments["instrument"]
     benchmark = instruments["benchmark"]
 
-    instrument_prices = filter_prices(prices, instrument["ticker"])
-    benchmark_prices = filter_prices(prices, benchmark["ticker"])
+    try:
+        instrument_prices, benchmark_prices = PRICE_LOADERS[provider](
+            instrument,
+            benchmark,
+        )
+    except Exception as error:
+        sys.exit(f"{PROVIDER_LABELS[provider]} retrieval failed: {error}")
 
     aligned_instrument, aligned_benchmark = align_series(
         instrument_prices,
@@ -84,7 +132,7 @@ def main():
     print("=== MarketPulse ===")
     print()
     print("Market configuration")
-    print(f"Provider : {PROVIDER_LABEL}")
+    print(f"Provider : {PROVIDER_LABELS[provider]}")
     print(f"Period   : {LOOKBACK_LABEL}")
     print(f"Interval : {INTERVAL_LABEL}")
     print(
