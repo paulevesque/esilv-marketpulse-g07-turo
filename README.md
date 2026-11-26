@@ -192,9 +192,10 @@ present many times
 
 - Python 3 (check with `python --version` or `python3 --version`);
 - Git;
-- access to the team repository.
+- access to the team repository;
+- internet access for the default Yahoo Finance provider.
 
-At the current stage (TD01-TD06), MarketPulse uses only the Python standard library: there is nothing to install with `pip`.
+Since TD08, MarketPulse has one direct dependency, `yfinance`, recorded in `requirements.txt`.
 
 ### Steps
 
@@ -205,7 +206,13 @@ git clone git@github.com:<team-owner>/esilv-marketpulse-gXX-tYY.git
 cd esilv-marketpulse-gXX-tYY
 ```
 
-2. Run MarketPulse **from the repository root**:
+2. Install the dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+3. Run MarketPulse **from the repository root**:
 
 ```bash
 python src/main.py
@@ -213,27 +220,42 @@ python src/main.py
 
 On macOS or Linux, if `python` is not found, use `python3 src/main.py`.
 
+By default the data comes from Yahoo Finance (1 month, daily). To run on the local sample data instead, for example without internet access:
+
+```bash
+python src/main.py csv
+```
+
 ### Expected output
 
-The terminal shows one summary for the instrument and one for the benchmark, then the provider, period and interval:
+The terminal shows the market configuration, the period return of the instrument and of the benchmark, the relative performance and the base-100 start and end values:
 
 ```text
 === MarketPulse ===
 
+Market configuration
+Provider : Yahoo Finance via yfinance
+Period   : 1 month
+Interval : Daily
+Common dates : ...
+
 Instrument
 AAPL - Apple Inc.
-Market       : NASDAQ | Currency: USD
-Observations : 21
-...
+Period return : ...
 
 Benchmark
 SP500 - S&P 500
-...
+Period return : ...
 
-Provider: CSV (local sample data)
-Period: 1 month
-Interval: Daily
+Relative performance
+AAPL vs SP500 : ... percentage points
+
+Base 100
+AAPL  : 100.00 -> ...
+SP500 : 100.00 -> ...
 ```
+
+With Yahoo Finance the values depend on the retrieval date. With `python src/main.py csv` they are always 6.48%, 2.15% and +4.33 percentage points.
 
 ### Common problems
 
@@ -242,6 +264,8 @@ Interval: Daily
 | `FileNotFoundError: ... 'data/sample/instruments.json'` | The command was run from another folder, for example `src/`. Data paths are relative to the repository root. | `cd` back to the repository root, then run `python src/main.py`. |
 | `command not found: python` | Only `python3` is installed. | Use `python3 src/main.py`. |
 | `can't open file '.../src/main.py'` | The current folder is not the repository. | Run `pwd`, then `cd` into the cloned repository. |
+| `Yahoo Finance via yfinance retrieval failed: No module named 'yfinance'` | The dependency is not installed. | Run `python -m pip install -r requirements.txt`. |
+| `Yahoo Finance via yfinance retrieval failed: No Yahoo Finance data returned for ...` | No internet access, or Yahoo Finance is temporarily unavailable. | Check the connection and retry once. `python src/main.py csv` still works on the local sample data. |
 
 ## Canonical runtime
 
