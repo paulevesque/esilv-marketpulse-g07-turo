@@ -65,23 +65,19 @@ def load_csv_prices(instrument, benchmark):
 
 def load_yahoo_prices(instrument, benchmark):
     # Imported here so the local CSV path keeps working without yfinance.
-    from providers.yahoo_provider import YAHOO_SYMBOLS, fetch_yahoo_prices
+    from providers.yahoo_provider import fetch_yahoo_prices, get_yahoo_symbol
 
-    for asset in (instrument, benchmark):
-        if asset["ticker"] not in YAHOO_SYMBOLS:
-            raise ValueError(
-                f"no Yahoo symbol is mapped for {asset['ticker']} "
-                "(add it to YAHOO_SYMBOLS in src/providers/yahoo_provider.py)"
-            )
+    # Resolve both symbols first, so a missing mapping fails before any download.
+    symbols = [get_yahoo_symbol(asset["ticker"]) for asset in (instrument, benchmark)]
 
     return tuple(
         fetch_yahoo_prices(
-            symbol=YAHOO_SYMBOLS[asset["ticker"]],
+            symbol=symbol,
             canonical_ticker=asset["ticker"],
             period=LOOKBACK,
             interval=INTERVAL,
         )
-        for asset in (instrument, benchmark)
+        for symbol, asset in zip(symbols, (instrument, benchmark))
     )
 
 
