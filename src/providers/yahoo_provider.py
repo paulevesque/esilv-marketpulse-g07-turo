@@ -16,6 +16,16 @@ YAHOO_SYMBOLS = {
 }
 
 
+def get_yahoo_symbol(canonical_ticker):
+    if canonical_ticker not in YAHOO_SYMBOLS:
+        raise ValueError(
+            f"no Yahoo symbol is mapped for {canonical_ticker} "
+            "(add it to YAHOO_SYMBOLS in src/providers/yahoo_provider.py)"
+        )
+
+    return YAHOO_SYMBOLS[canonical_ticker]
+
+
 def fetch_yahoo_prices(
     symbol,
     canonical_ticker,
