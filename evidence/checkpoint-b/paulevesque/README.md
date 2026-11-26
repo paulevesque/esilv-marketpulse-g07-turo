@@ -14,10 +14,10 @@ Checkpoint Phase B - TD05 to TD08.
 |---|---|
 | `01_pull_request.png` | My Pull Request #7 `feat: add Yahoo Finance provider` (branch `feature/yahoo-provider`), merged into `main` after review by @AlexandreMoussou |
 | `02_code_review.png` | My review of Pull Request #6 `feat: add reusable market comparison analytics`, with what I verified and three non-blocking remarks |
-| `03_yahoo_market_data.png` | `python src/main.py` run on 2026-11-26: successful remote retrieval, `Provider : Yahoo Finance via yfinance`, 1 month, Daily, 23 common dates |
-| `04_instrument_benchmark.png` | Same run: AAPL and SP500 period returns, relative performance in percentage points and base 100 |
+| `03_yahoo_market_data.png` | Successful remote retrieval through `yfinance` on 2026-11-26: 23 canonical rows for AAPL and 23 for SP500 (Yahoo symbol `^GSPC`), first and last row of each |
+| `04_instrument_benchmark.png` | `python src/main.py` with the Yahoo provider: `Provider : Yahoo Finance via yfinance`, 1 month, Daily, 23 common dates, AAPL and SP500 period returns, relative performance in percentage points and base 100 |
 
-`03_yahoo_market_data.png` and `04_instrument_benchmark.png` are the same capture of one terminal run, because the whole output fits on one screen.
+The command in `03_yahoo_market_data.png` calls `fetch_yahoo_prices()` from `src/providers/yahoo_provider.py` for each entry of `YAHOO_SYMBOLS` and prints the number of rows, the first row and the last row. The `ticker` of the benchmark rows is `SP500`, not `^GSPC`.
 
 ## What I did (TD05-TD08)
 
