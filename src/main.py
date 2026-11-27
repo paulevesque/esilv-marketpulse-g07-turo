@@ -87,6 +87,52 @@ PRICE_LOADERS = {
 }
 
 
+def build_market_snapshot(provider=PROVIDER):
+    """Return the application result shared by the terminal and the dashboard."""
+    if provider not in PRICE_LOADERS:
+        raise ValueError(
+            f"Unknown provider: {provider} "
+            f"(use {', '.join(PRICE_LOADERS)})"
+        )
+
+    instruments = load_instruments()
+
+    instrument = instruments["instrument"]
+    benchmark = instruments["benchmark"]
+
+    instrument_prices, benchmark_prices = PRICE_LOADERS[provider](
+        instrument,
+        benchmark,
+    )
+
+    aligned_instrument, aligned_benchmark = align_series(
+        instrument_prices,
+        benchmark_prices,
+    )
+
+    if not aligned_instrument:
+        raise ValueError("No common dates between instrument and benchmark")
+
+    instrument_return = calculate_period_return(aligned_instrument)
+    benchmark_return = calculate_period_return(aligned_benchmark)
+
+    return {
+        "provider": PROVIDER_LABELS[provider],
+        "lookback": LOOKBACK_LABEL,
+        "interval": INTERVAL_LABEL,
+        "instrument": instrument,
+        "benchmark": benchmark,
+        "instrument_return": instrument_return,
+        "benchmark_return": benchmark_return,
+        "relative_performance": calculate_relative_performance(
+            instrument_return,
+            benchmark_return,
+        ),
+        "instrument_base_100": calculate_base_100(aligned_instrument),
+        "benchmark_base_100": calculate_base_100(aligned_benchmark),
+    }
+
+
 def display_asset_summary(label, asset, period_return):
     print(label)
     print(f"{asset['ticker']} - {asset['name']}")
@@ -98,59 +144,52 @@ def main():
     provider = sys.argv[1] if len(sys.argv) > 1 else PROVIDER
 
     if provider not in PRICE_LOADERS:
-        sys.exit(f"Unknown provider: {provider} (use csv or yahoo)")
-
-    instruments = load_instruments()
-
-    instrument = instruments["instrument"]
-    benchmark = instruments["benchmark"]
+        sys.exit(
+            f"Unknown provider: {provider} "
+            f"(use {', '.join(PRICE_LOADERS)})"
+        )
 
     try:
-        instrument_prices, benchmark_prices = PRICE_LOADERS[provider](
-            instrument,
-            benchmark,
-        )
+        snapshot = build_market_snapshot(provider)
     except Exception as error:
         sys.exit(f"{PROVIDER_LABELS[provider]} retrieval failed: {error}")
 
-    aligned_instrument, aligned_benchmark = align_series(
-        instrument_prices,
-        benchmark_prices,
-    )
+    instrument = snapshot["instrument"]
+    benchmark = snapshot["benchmark"]
 
-    if not aligned_instrument:
-        print("No common dates between instrument and benchmark.")
-        return
-
-    instrument_return = calculate_period_return(aligned_instrument)
-    benchmark_return = calculate_period_return(aligned_benchmark)
-    relative_performance = calculate_relative_performance(
-        instrument_return,
-        benchmark_return,
-    )
-
-    instrument_base_100 = calculate_base_100(aligned_instrument)
-    benchmark_base_100 = calculate_base_100(aligned_benchmark)
+    instrument_base_100 = snapshot["instrument_base_100"]
+    benchmark_base_100 = snapshot["benchmark_base_100"]
 
     print("=== MarketPulse ===")
     print()
     print("Market configuration")
-    print(f"Provider : {PROVIDER_LABELS[provider]}")
-    print(f"Period   : {LOOKBACK_LABEL}")
-    print(f"Interval : {INTERVAL_LABEL}")
+    print(f"Provider     : {snapshot['provider']}")
+    print(f"Instrument   : {instrument['ticker']} - {instrument['name']}")
+    print(f"Benchmark    : {benchmark['name']}")
+    print(f"Period       : {snapshot['lookback']}")
+    print(f"Interval     : {snapshot['interval']}")
     print(
-        f"Common dates : {len(aligned_instrument)} "
-        f"({aligned_instrument[0]['date']} -> {aligned_instrument[-1]['date']})"
+        f"Common dates : {len(instrument_base_100)} "
+        f"({instrument_base_100[0]['date']} -> "
+        f"{instrument_base_100[-1]['date']})"
     )
     print()
-    display_asset_summary("Instrument", instrument, instrument_return)
+    display_asset_summary(
+        "Instrument",
+        instrument,
+        snapshot["instrument_return"],
+    )
     print()
-    display_asset_summary("Benchmark", benchmark, benchmark_return)
+    display_asset_summary(
+        "Benchmark",
+        benchmark,
+        snapshot["benchmark_return"],
+    )
     print()
     print("Relative performance")
     print(
         f"{instrument['ticker']} vs {benchmark['ticker']} : "
-        f"{relative_performance:+.2f} percentage points"
+        f"{snapshot['relative_performance']:+.2f} percentage points"
     )
     print()
     print("Base 100")
