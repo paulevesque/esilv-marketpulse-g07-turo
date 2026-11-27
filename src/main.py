@@ -16,13 +16,14 @@ DATA_DIR = Path("data/sample")
 # These starter values mirror config/settings.yml.
 # settings.yml is a human-readable configuration contract in the CORE.
 # Parsing YAML is optional and is not required by the 18-hour lab sequence.
-PROVIDER = "yahoo"
+PROVIDER = "bloomberg"
 LOOKBACK = "1mo"
 INTERVAL = "1d"
 
 PROVIDER_LABELS = {
     "csv": "CSV (local sample data)",
     "yahoo": "Yahoo Finance via yfinance",
+    "bloomberg": "Bloomberg stage",
 }
 LOOKBACK_LABEL = "1 month"
 INTERVAL_LABEL = "Daily"
@@ -81,10 +82,30 @@ def load_yahoo_prices(instrument, benchmark):
     )
 
 
+def load_bloomberg_prices(instrument, benchmark):
+    from providers.bloomberg_provider import fetch_bloomberg_prices
+
+    return (
+        fetch_bloomberg_prices(instrument["ticker"]),
+        fetch_bloomberg_prices(benchmark["ticker"]),
+    )
+
+
 PRICE_LOADERS = {
     "csv": load_csv_prices,
     "yahoo": load_yahoo_prices,
+    "bloomberg": load_bloomberg_prices,
 }
+
+
+def get_access_mode(provider):
+    # Only the Bloomberg stage has an access mode (LIVE or APPROVED_SAMPLE).
+    if provider != "bloomberg":
+        return None
+
+    from providers.bloomberg_provider import ACCESS_MODE
+
+    return ACCESS_MODE
 
 
 def build_market_snapshot(provider=PROVIDER):
@@ -118,6 +139,7 @@ def build_market_snapshot(provider=PROVIDER):
 
     return {
         "provider": PROVIDER_LABELS[provider],
+        "access_mode": get_access_mode(provider),
         "lookback": LOOKBACK_LABEL,
         "interval": INTERVAL_LABEL,
         "instrument": instrument,
@@ -140,7 +162,7 @@ def display_asset_summary(label, asset, period_return):
 
 
 def main():
-    # Optional: "python src/main.py csv" runs on the local sample data.
+    # Optional: "python src/main.py yahoo" or "python src/main.py csv".
     provider = sys.argv[1] if len(sys.argv) > 1 else PROVIDER
 
     if provider not in PRICE_LOADERS:
@@ -164,6 +186,8 @@ def main():
     print()
     print("Market configuration")
     print(f"Provider     : {snapshot['provider']}")
+    if snapshot["access_mode"]:
+        print(f"Access mode  : {snapshot['access_mode']}")
     print(f"Instrument   : {instrument['ticker']} - {instrument['name']}")
     print(f"Benchmark    : {benchmark['name']}")
     print(f"Period       : {snapshot['lookback']}")
