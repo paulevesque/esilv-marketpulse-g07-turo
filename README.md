@@ -51,6 +51,29 @@
   </a>
 </p>
 
+## Team release (G07 - T07)
+
+This repository is the team fork `paulevesque/esilv-marketpulse-g07-turo`. State of the final release (TD12):
+
+| Question | Answer |
+|---|---|
+| What is MarketPulse? | A small Python application that compares one instrument with its benchmark over the same period and shows the result in the terminal and in a Dash dashboard. |
+| Instrument | AAPL - Apple Inc. |
+| Benchmark | SP500 - S&P 500 |
+| Lookback / interval | 1 month / Daily |
+| Final provider and mode | **Bloomberg stage - APPROVED_SAMPLE**: rows read from the instructor fallback sample `data/sample/bloomberg_reference_sample.json`. Live Bloomberg connectivity was not demonstrated. |
+| Other provider stages | `yahoo` (Yahoo Finance via `yfinance`, live, needs internet access) and `csv` (local sample). |
+| Install | `python -m pip install -r requirements.txt` |
+| Terminal | `python src/main.py` |
+| Dashboard | `python src/dashboard.py` |
+| Environment constraint | Python 3, commands run from the repository root. The default run needs no network and no credential. No Bloomberg terminal is required, because none is used. |
+| Evidence | `evidence/checkpoint-a/`, `evidence/checkpoint-b/` and `evidence/checkpoint-c/`, one folder per GitHub username. |
+| Team | See [TEAM.md](TEAM.md). |
+
+Details are in [How to run](#how-to-run).
+
+The sections below that are not specific to the team come from the instructor starter. The numbered documents they link to (`docs/00_...` to `docs/16_...`) belong to the instructor repository and are not part of this fork; the only document under `docs/` here is [the Bloomberg field mapping](docs/BLOOMBERG_FIELD_MAPPING.md).
+
 ## What students build
 
 MarketPulse starts deliberately small and evolves across 12 practical labs.
@@ -202,11 +225,18 @@ MarketPulse has three direct dependencies, recorded in `requirements.txt`: `yfin
 1. Clone the team repository and enter it:
 
 ```bash
-git clone git@github.com:<team-owner>/esilv-marketpulse-gXX-tYY.git
-cd esilv-marketpulse-gXX-tYY
+git clone https://github.com/paulevesque/esilv-marketpulse-g07-turo.git
+cd esilv-marketpulse-g07-turo
 ```
 
-2. Install the dependencies:
+2. Optional: create and activate a virtual environment, to keep the dependencies out of the system Python:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate        # Windows PowerShell: .venv\Scripts\Activate.ps1
+```
+
+Then install the dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
@@ -271,7 +301,7 @@ python src/dashboard.py
 
 Open the local URL printed by Dash (`http://127.0.0.1:8050/` by default) and stop the server with `Ctrl+C`.
 
-The page shows the provider, the instrument, the benchmark, the lookback, the interval, the instrument return, the benchmark return, the relative performance and one base-100 chart with both series. `src/dashboard.py` only displays the snapshot returned by `build_market_snapshot()` in `src/main.py`, so the terminal and the dashboard always show the same values.
+The page shows the provider, the instrument, the benchmark, the lookback, the interval, the instrument return, the benchmark return, the relative performance and one base-100 chart with both series. `src/dashboard.py` only displays the snapshot returned by `build_market_snapshot()` in `src/main.py`, so the terminal and the dashboard show the same values for the same data. With `yahoo`, each launch retrieves the prices again, so two launches at different times can differ.
 
 As in the terminal, `python src/dashboard.py yahoo` and `python src/dashboard.py csv` select another provider stage.
 
@@ -344,6 +374,8 @@ APPROVED_SAMPLE
 `LIVE` means the instructor-approved Bloomberg environment successfully returned data.
 
 `APPROVED_SAMPLE` means the instructor fallback assets were used for mapping and normalization work.
+
+This team used `APPROVED_SAMPLE` for TD09 to TD12. The mode is defined once, as `ACCESS_MODE` in `src/providers/bloomberg_provider.py`, and is displayed by both the terminal and the dashboard.
 
 Important:
 
