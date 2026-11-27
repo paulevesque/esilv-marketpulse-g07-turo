@@ -195,7 +195,7 @@ present many times
 - access to the team repository;
 - internet access only for the Yahoo Finance provider (`python src/main.py yahoo`).
 
-Since TD08, MarketPulse has one direct dependency, `yfinance`, recorded in `requirements.txt`.
+MarketPulse has three direct dependencies, recorded in `requirements.txt`: `yfinance` (Yahoo provider, since TD08), `dash` and `plotly` (dashboard, since TD11).
 
 ### Steps
 
@@ -261,6 +261,20 @@ SP500 : 100.00 -> 102.15
 
 The approved sample reuses the teaching values of `data/sample/prices.csv`, so the default run and `python src/main.py csv` always give 6.48%, 2.15% and +4.33 percentage points. With `python src/main.py yahoo` the values depend on the retrieval date.
 
+### Dashboard
+
+The same result is available in a browser:
+
+```bash
+python src/dashboard.py
+```
+
+Open the local URL printed by Dash (`http://127.0.0.1:8050/` by default) and stop the server with `Ctrl+C`.
+
+The page shows the provider, the instrument, the benchmark, the lookback, the interval, the instrument return, the benchmark return, the relative performance and one base-100 chart with both series. `src/dashboard.py` only displays the snapshot returned by `build_market_snapshot()` in `src/main.py`, so the terminal and the dashboard always show the same values.
+
+As in the terminal, `python src/dashboard.py yahoo` and `python src/dashboard.py csv` select another provider stage.
+
 ### Common problems
 
 | Symptom | Cause | Fix |
@@ -269,6 +283,8 @@ The approved sample reuses the teaching values of `data/sample/prices.csv`, so t
 | `command not found: python` | Only `python3` is installed. | Use `python3 src/main.py`. |
 | `can't open file '.../src/main.py'` | The current folder is not the repository. | Run `pwd`, then `cd` into the cloned repository. |
 | `Yahoo Finance via yfinance retrieval failed: No module named 'yfinance'` | The dependency is not installed. | Run `python -m pip install -r requirements.txt`. |
+| `ModuleNotFoundError: No module named 'dash'` (or `'plotly'`) | The dashboard dependencies are not installed. | Run `python -m pip install -r requirements.txt`. |
+| `ModuleNotFoundError: No module named 'main'` | The dashboard was not started as `python src/dashboard.py`. | Run `python src/dashboard.py` from the repository root. |
 | `Yahoo Finance via yfinance retrieval failed: No Yahoo Finance data returned for ...` | No internet access, or Yahoo Finance is temporarily unavailable. | Check the connection and retry once. `python src/main.py csv` still works on the local sample data. |
 
 ## Canonical runtime

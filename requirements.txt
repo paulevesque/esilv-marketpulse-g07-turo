@@ -1,3 +1,5 @@
 # Direct dependencies only. Transitive dependencies are not listed.
 # Install with: python -m pip install -r requirements.txt
 yfinance
+dash
+plotly
