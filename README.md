@@ -229,17 +229,17 @@ git clone https://github.com/paulevesque/esilv-marketpulse-g07-turo.git
 cd esilv-marketpulse-g07-turo
 ```
 
-2. Install the dependencies:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-To keep them out of the system Python, create a virtual environment first (optional):
+2. Optional: create and activate a virtual environment, to keep the dependencies out of the system Python:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate        # Windows PowerShell: .venv\Scripts\Activate.ps1
+```
+
+Then install the dependencies:
+
+```bash
+python -m pip install -r requirements.txt
 ```
 
 3. Run MarketPulse **from the repository root**:
@@ -301,7 +301,7 @@ python src/dashboard.py
 
 Open the local URL printed by Dash (`http://127.0.0.1:8050/` by default) and stop the server with `Ctrl+C`.
 
-The page shows the provider, the instrument, the benchmark, the lookback, the interval, the instrument return, the benchmark return, the relative performance and one base-100 chart with both series. `src/dashboard.py` only displays the snapshot returned by `build_market_snapshot()` in `src/main.py`, so the terminal and the dashboard always show the same values.
+The page shows the provider, the instrument, the benchmark, the lookback, the interval, the instrument return, the benchmark return, the relative performance and one base-100 chart with both series. `src/dashboard.py` only displays the snapshot returned by `build_market_snapshot()` in `src/main.py`, so the terminal and the dashboard show the same values for the same data. With `yahoo`, each launch retrieves the prices again, so two launches at different times can differ.
 
 As in the terminal, `python src/dashboard.py yahoo` and `python src/dashboard.py csv` select another provider stage.
 
