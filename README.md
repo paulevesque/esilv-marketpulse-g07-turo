@@ -11,7 +11,7 @@
 [![Course: MESIFI472326](https://img.shields.io/badge/course-MESIFI472326-1f6feb.svg)](docs/06_TD_SEQUENCE_AND_LEARNING_PATH.md)
 [![ESILV A4](https://img.shields.io/badge/ESILV-A4-111827.svg)](docs/00_MARKETPULSE_FUNCTIONAL_CONTRACT.md)
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB.svg)](https://www.python.org/)
-[![Labs](https://img.shields.io/badge/labs-12-2ea44f.svg)](docs/labs/README.md)
+[![Labs](https://img.shields.io/badge/labs-12-2ea44f.svg)](labs/README.md)
 [![TD](https://img.shields.io/badge/TD-18h-orange.svg)](docs/06_TD_SEQUENCE_AND_LEARNING_PATH.md)
 [![Status](https://img.shields.io/badge/status-baseline%20ready-success.svg)](docs/16_TEACHING_BASELINE_RELEASE.md)
 
@@ -50,6 +50,22 @@
     <img src="https://img.shields.io/badge/Bloomberg-000000?logo=bloomberg&amp;logoColor=white" alt="bloomberg" height="40"/>
   </a>
 </p>
+
+## Team T07 release
+
+| | |
+|---|---|
+| Team | G07 - T07 (see [TEAM.md](TEAM.md)) |
+| Instrument | AAPL - Apple Inc. |
+| Benchmark | SP500 - S&P 500 |
+| Lookback / interval | 1 month / Daily |
+| Final provider | **Bloomberg stage - APPROVED_SAMPLE** |
+| Other provider stages | Yahoo Finance via yfinance (`python src/main.py yahoo`), CSV (`python src/main.py csv`) |
+| Environment constraint | No LIVE Bloomberg access was available. The Bloomberg stage reads the instructor-approved fallback `data/sample/bloomberg_reference_sample.json`. It validates the provider boundary and normalization, **not** live Bloomberg connectivity. |
+| Field mapping | [docs/BLOOMBERG_FIELD_MAPPING.md](docs/BLOOMBERG_FIELD_MAPPING.md) |
+| Evidence | [evidence/](evidence/README.md), one folder per checkpoint and GitHub username |
+
+Course documents referenced below with a `docs/NN_...` path live in the instructor repository `tawounfouet/esilv-marketpulse`, not in this team repository.
 
 ## What students build
 
@@ -175,7 +191,7 @@ Dash presentation
 snapshot consumption
 ```
 
-The application result shared by terminal and Dash is defined in [the snapshot contract](docs/12_MARKETPULSE_APPLICATION_SNAPSHOT_CONTRACT.md).
+The application result shared by terminal and Dash is returned by `build_market_snapshot()` in `src/main.py`, following the instructor snapshot contract `docs/12_MARKETPULSE_APPLICATION_SNAPSHOT_CONTRACT.md`.
 
 The design principle is:
 
@@ -193,17 +209,19 @@ present many times
 - Python 3 (check with `python --version` or `python3 --version`);
 - Git;
 - access to the team repository;
-- internet access for the default Yahoo Finance provider.
+- a web browser for the dashboard.
 
-Since TD08, MarketPulse has one direct dependency, `yfinance`, recorded in `requirements.txt`.
+Direct dependencies, recorded in `requirements.txt`: `yfinance`, `dash`, `plotly`.
+
+No internet access, Bloomberg terminal or credential is needed for the default provider: the Bloomberg stage runs on the approved sample committed in `data/sample/`.
 
 ### Steps
 
 1. Clone the team repository and enter it:
 
 ```bash
-git clone git@github.com:<team-owner>/esilv-marketpulse-gXX-tYY.git
-cd esilv-marketpulse-gXX-tYY
+git clone https://github.com/paulevesque/esilv-marketpulse-g07-turo.git
+cd esilv-marketpulse-g07-turo
 ```
 
 2. Install the dependencies:
@@ -212,60 +230,71 @@ cd esilv-marketpulse-gXX-tYY
 python -m pip install -r requirements.txt
 ```
 
-3. Run MarketPulse **from the repository root**:
+3. Run the terminal path **from the repository root**:
 
 ```bash
 python src/main.py
 ```
 
-On macOS or Linux, if `python` is not found, use `python3 src/main.py`.
-
-By default the data comes from Yahoo Finance (1 month, daily). To run on the local sample data instead, for example without internet access:
+4. Run the dashboard, then open http://127.0.0.1:8050 in a browser (`Ctrl+C` stops it):
 
 ```bash
-python src/main.py csv
+python src/dashboard.py
 ```
 
-### Expected output
+On macOS or Linux, if `python` is not found, use `python3`.
 
-The terminal shows the market configuration, the period return of the instrument and of the benchmark, the relative performance and the base-100 start and end values:
+The terminal can also run the other provider stages:
+
+```bash
+python src/main.py yahoo   # Yahoo Finance via yfinance, needs internet access
+python src/main.py csv     # local CSV sample data
+```
+
+The dashboard always uses the default provider (`bloomberg`, APPROVED_SAMPLE).
+
+### Expected output
 
 ```text
 === MarketPulse ===
 
 Market configuration
-Provider : Yahoo Finance via yfinance
+Provider : Bloomberg stage - APPROVED_SAMPLE
 Period   : 1 month
 Interval : Daily
-Common dates : ...
+Common dates : 21 (2026-09-01 -> 2026-09-30)
 
 Instrument
 AAPL - Apple Inc.
-Period return : ...
+Period return : 6.48%
 
 Benchmark
 SP500 - S&P 500
-Period return : ...
+Period return : 2.15%
 
 Relative performance
-AAPL vs SP500 : ... percentage points
+AAPL vs SP500 : +4.33 percentage points
 
 Base 100
-AAPL  : 100.00 -> ...
-SP500 : 100.00 -> ...
+AAPL  : 100.00 -> 106.48
+SP500 : 100.00 -> 102.15
 ```
 
-With Yahoo Finance the values depend on the retrieval date. With `python src/main.py csv` they are always 6.48%, 2.15% and +4.33 percentage points.
+The dashboard shows the same provider, instrument, benchmark, lookback, interval and the same three values (+6.48%, +2.15%, +4.33 pts), plus one base-100 chart with AAPL and SP500.
+
+With `yahoo` the values depend on the retrieval date.
 
 ### Common problems
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `FileNotFoundError: ... 'data/sample/instruments.json'` | The command was run from another folder, for example `src/`. Data paths are relative to the repository root. | `cd` back to the repository root, then run `python src/main.py`. |
+| `FileNotFoundError: ... 'data/sample/instruments.json'` | The command was run from another folder, for example `src/`. Data paths are relative to the repository root. | `cd` back to the repository root, then run the command again. |
 | `command not found: python` | Only `python3` is installed. | Use `python3 src/main.py`. |
 | `can't open file '.../src/main.py'` | The current folder is not the repository. | Run `pwd`, then `cd` into the cloned repository. |
-| `Yahoo Finance via yfinance retrieval failed: No module named 'yfinance'` | The dependency is not installed. | Run `python -m pip install -r requirements.txt`. |
-| `Yahoo Finance via yfinance retrieval failed: No Yahoo Finance data returned for ...` | No internet access, or Yahoo Finance is temporarily unavailable. | Check the connection and retry once. `python src/main.py csv` still works on the local sample data. |
+| `ModuleNotFoundError: No module named 'dash'` (or `plotly`) | The dependencies are not installed. | Run `python -m pip install -r requirements.txt`. |
+| `MarketPulse failed (yahoo): No module named 'yfinance'` | Same cause. | Same fix. |
+| `MarketPulse failed (yahoo): No Yahoo Finance data returned for ...` | No internet access, or Yahoo Finance is temporarily unavailable. | Retry once, or use the default `python src/main.py`, which works offline. |
+| `Address already in use` when starting the dashboard | Another dashboard is still running on port 8050. | Stop it with `Ctrl+C` in its terminal. |
 
 ## Canonical runtime
 
@@ -291,13 +320,13 @@ The starter TD01-TD02 path uses only the Python standard library.
 
 Later labs add direct dependencies as required.
 
-When `requirements.txt` contains the dependencies for the current stage:
+Install the direct dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-Typical later-stage dependencies include:
+The team repository uses:
 
 ```text
 yfinance
@@ -333,11 +362,7 @@ APPROVED_SAMPLE
 LIVE Bloomberg evidence
 ```
 
-Instructor reference:
-
-```text
-docs/10_BLOOMBERG_INSTRUCTOR_REFERENCE.md
-```
+This team repository uses `APPROVED_SAMPLE`: the terminal and the dashboard both display `Bloomberg stage - APPROVED_SAMPLE`.
 
 ## Student Git workflow
 
@@ -531,7 +556,7 @@ docs/advanced/README.md
 The lab-to-advanced availability map is maintained in:
 
 ```text
-docs/labs/README.md
+labs/README.md
 ```
 
 Instructor deep dives are indexed from:
