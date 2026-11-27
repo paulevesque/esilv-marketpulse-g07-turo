@@ -193,7 +193,7 @@ present many times
 - Python 3 (check with `python --version` or `python3 --version`);
 - Git;
 - access to the team repository;
-- internet access for the default Yahoo Finance provider.
+- internet access only for the Yahoo Finance provider (`python src/main.py yahoo`).
 
 Since TD08, MarketPulse has one direct dependency, `yfinance`, recorded in `requirements.txt`.
 
@@ -220,10 +220,13 @@ python src/main.py
 
 On macOS or Linux, if `python` is not found, use `python3 src/main.py`.
 
-By default the data comes from Yahoo Finance (1 month, daily). To run on the local sample data instead, for example without internet access:
+By default the data comes from the Bloomberg stage in `APPROVED_SAMPLE` mode: the rows are read from the instructor fallback sample `data/sample/bloomberg_reference_sample.json` and normalized by `src/providers/bloomberg_provider.py`. No Bloomberg terminal is queried, so this is not live Bloomberg data.
+
+The two earlier provider stages are still available:
 
 ```bash
-python src/main.py csv
+python src/main.py yahoo   # Yahoo Finance via yfinance, needs internet access
+python src/main.py csv     # local CSV sample data
 ```
 
 ### Expected output
@@ -234,28 +237,29 @@ The terminal shows the market configuration, the period return of the instrument
 === MarketPulse ===
 
 Market configuration
-Provider : Yahoo Finance via yfinance
+Provider : Bloomberg stage - APPROVED_SAMPLE
+Access mode : APPROVED_SAMPLE (fallback sample, not live Bloomberg)
 Period   : 1 month
 Interval : Daily
-Common dates : ...
+Common dates : 21 (2026-09-01 -> 2026-09-30)
 
 Instrument
 AAPL - Apple Inc.
-Period return : ...
+Period return : 6.48%
 
 Benchmark
 SP500 - S&P 500
-Period return : ...
+Period return : 2.15%
 
 Relative performance
-AAPL vs SP500 : ... percentage points
+AAPL vs SP500 : +4.33 percentage points
 
 Base 100
-AAPL  : 100.00 -> ...
-SP500 : 100.00 -> ...
+AAPL  : 100.00 -> 106.48
+SP500 : 100.00 -> 102.15
 ```
 
-With Yahoo Finance the values depend on the retrieval date. With `python src/main.py csv` they are always 6.48%, 2.15% and +4.33 percentage points.
+The approved sample reuses the teaching values of `data/sample/prices.csv`, so the default run and `python src/main.py csv` always give 6.48%, 2.15% and +4.33 percentage points. With `python src/main.py yahoo` the values depend on the retrieval date.
 
 ### Common problems
 

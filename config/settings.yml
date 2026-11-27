@@ -6,7 +6,9 @@ app:
   name: MarketPulse
 
 market:
-  provider: yahoo
+  # csv, yahoo or bloomberg.
+  # bloomberg runs in APPROVED_SAMPLE mode (instructor fallback sample, not live).
+  provider: bloomberg
   lookback: 1mo
   interval: 1d
 
