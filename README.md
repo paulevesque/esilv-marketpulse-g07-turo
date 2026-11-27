@@ -188,22 +188,53 @@ present many times
 
 ## How to run
 
+This section describes the team repository `paulevesque/esilv-marketpulse-g07-turo` (group G07, team T07).
+
+### Final provider
+
+```text
+Instrument : AAPL - Apple Inc.
+Benchmark  : S&P 500
+Lookback   : 1 month
+Interval   : Daily
+Provider   : Bloomberg stage - APPROVED_SAMPLE
+```
+
+The default provider is the Bloomberg stage in `APPROVED_SAMPLE` mode. The rows are read from the instructor fallback fixture `data/sample/bloomberg_reference_sample.json` and normalized by `src/providers/bloomberg_provider.py`.
+
+No Bloomberg terminal or Bloomberg API was queried. This is not LIVE Bloomberg connectivity, and the values are teaching values for September 2026, not real market observations. See [the field mapping](docs/BLOOMBERG_FIELD_MAPPING.md).
+
+Two other providers remain available from the terminal:
+
+| Command | Provider | Needs |
+|---|---|---|
+| `python src/main.py` | Bloomberg stage - APPROVED_SAMPLE (default) | nothing else |
+| `python src/main.py yahoo` | Yahoo Finance via yfinance | internet access |
+| `python src/main.py csv` | CSV (local sample data) | nothing else |
+
 ### Prerequisites
 
 - Python 3 (check with `python --version` or `python3 --version`);
 - Git;
-- access to the team repository;
-- internet access for the default Yahoo Finance provider.
+- internet access to install the dependencies (and for the Yahoo Finance provider).
 
-Since TD08, MarketPulse has one direct dependency, `yfinance`, recorded in `requirements.txt`.
+No credential, account or Bloomberg environment is needed for the default provider.
+
+Direct dependencies, recorded in `requirements.txt`:
+
+```text
+yfinance
+dash
+plotly
+```
 
 ### Steps
 
 1. Clone the team repository and enter it:
 
 ```bash
-git clone git@github.com:<team-owner>/esilv-marketpulse-gXX-tYY.git
-cd esilv-marketpulse-gXX-tYY
+git clone https://github.com/paulevesque/esilv-marketpulse-g07-turo.git
+cd esilv-marketpulse-g07-turo
 ```
 
 2. Install the dependencies:
@@ -212,60 +243,79 @@ cd esilv-marketpulse-gXX-tYY
 python -m pip install -r requirements.txt
 ```
 
-3. Run MarketPulse **from the repository root**:
+3. Run the terminal path **from the repository root**:
 
 ```bash
 python src/main.py
 ```
 
-On macOS or Linux, if `python` is not found, use `python3 src/main.py`.
-
-By default the data comes from Yahoo Finance (1 month, daily). To run on the local sample data instead, for example without internet access:
+4. Run the dashboard, also from the repository root:
 
 ```bash
-python src/main.py csv
+python src/dashboard.py
 ```
 
-### Expected output
+Then open the local URL printed by Dash (`http://127.0.0.1:8050/` by default). Stop the server with `Ctrl+C`.
 
-The terminal shows the market configuration, the period return of the instrument and of the benchmark, the relative performance and the base-100 start and end values:
+On macOS or Linux, if `python` is not found, use `python3` instead.
+
+### Expected terminal output
 
 ```text
 === MarketPulse ===
 
 Market configuration
-Provider : Yahoo Finance via yfinance
-Period   : 1 month
-Interval : Daily
-Common dates : ...
+Provider     : Bloomberg stage
+Access mode  : APPROVED_SAMPLE
+Instrument   : AAPL - Apple Inc.
+Benchmark    : S&P 500
+Period       : 1 month
+Interval     : Daily
+Common dates : 21 (2026-09-01 -> 2026-09-30)
 
 Instrument
 AAPL - Apple Inc.
-Period return : ...
+Period return : 6.48%
 
 Benchmark
 SP500 - S&P 500
-Period return : ...
+Period return : 2.15%
 
 Relative performance
-AAPL vs SP500 : ... percentage points
+AAPL vs SP500 : +4.33 percentage points
 
 Base 100
-AAPL  : 100.00 -> ...
-SP500 : 100.00 -> ...
+AAPL  : 100.00 -> 106.48
+SP500 : 100.00 -> 102.15
 ```
 
-With Yahoo Finance the values depend on the retrieval date. With `python src/main.py csv` they are always 6.48%, 2.15% and +4.33 percentage points.
+The approved sample and the CSV sample hold the same teaching values, so both give 6.48%, 2.15% and +4.33 percentage points. With `python src/main.py yahoo` the values depend on the retrieval date.
+
+### Expected dashboard
+
+The dashboard shows the same snapshot as the terminal:
+
+- provider (`Bloomberg stage - APPROVED_SAMPLE`), instrument, benchmark, lookback and interval;
+- instrument return, benchmark return and relative performance;
+- one base-100 chart with the AAPL and SP500 series, both starting at 100.
+
+`src/dashboard.py` only displays the result of `build_market_snapshot()` from `src/main.py`. It does not call a provider and does not calculate anything.
+
+### Evidence
+
+Checkpoint evidence is stored per student under `evidence/checkpoint-a/`, `evidence/checkpoint-b/` and `evidence/checkpoint-c/`, in a folder named after the GitHub username. See [evidence/README.md](evidence/README.md).
 
 ### Common problems
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `FileNotFoundError: ... 'data/sample/instruments.json'` | The command was run from another folder, for example `src/`. Data paths are relative to the repository root. | `cd` back to the repository root, then run `python src/main.py`. |
+| `FileNotFoundError: ... 'data/sample/instruments.json'` | The command was run from another folder, for example `src/`. Data paths are relative to the repository root. | `cd` back to the repository root, then run the command again. |
 | `command not found: python` | Only `python3` is installed. | Use `python3 src/main.py`. |
 | `can't open file '.../src/main.py'` | The current folder is not the repository. | Run `pwd`, then `cd` into the cloned repository. |
-| `Yahoo Finance via yfinance retrieval failed: No module named 'yfinance'` | The dependency is not installed. | Run `python -m pip install -r requirements.txt`. |
-| `Yahoo Finance via yfinance retrieval failed: No Yahoo Finance data returned for ...` | No internet access, or Yahoo Finance is temporarily unavailable. | Check the connection and retry once. `python src/main.py csv` still works on the local sample data. |
+| `ModuleNotFoundError: No module named 'dash'` (or `plotly`) | The dependencies are not installed. | Run `python -m pip install -r requirements.txt`. |
+| `Yahoo Finance via yfinance retrieval failed: No module named 'yfinance'` | The dependencies are not installed. | Run `python -m pip install -r requirements.txt`. |
+| `Yahoo Finance via yfinance retrieval failed: No Yahoo Finance data returned for ...` | No internet access, or Yahoo Finance is temporarily unavailable. | Check the connection and retry once. The default provider and `python src/main.py csv` do not need internet access. |
+| The dashboard does not start because the port is already in use | Another dashboard is still running on port 8050. | Stop it with `Ctrl+C` in its terminal, then start again. |
 
 ## Canonical runtime
 
