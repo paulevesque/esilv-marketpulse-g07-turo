@@ -6,7 +6,7 @@ app:
   name: MarketPulse
 
 market:
-  provider: yahoo
+  provider: bloomberg  # Bloomberg stage - APPROVED_SAMPLE (not LIVE)
   lookback: 1mo
   interval: 1d
 
